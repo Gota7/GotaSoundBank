@@ -10,7 +10,7 @@ namespace GotaSoundBank.SF2 {
     /// <summary>
     /// An instrument.
     /// </summary>
-    public class Instrument : IReadable, IWritable {
+    public class Instrument : IReadable, IWriteable {
 
         /// <summary>
         /// Instrument name.

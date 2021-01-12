@@ -125,7 +125,7 @@ namespace GotaSoundBank.SF2 {
                     z.Generators.Add(new Generator() { Gen = SF2Generators.OverridingRootKey, Amount = new SF2GeneratorAmount() { UAmount = r.RootNote } });
 
                     //Pitch correction.
-                    Samples[waveLink[(int)r.WaveId]].PitchCorrection = (sbyte)r.Tuning;
+                    Samples[waveLink[(int)r.WaveId]].PitchCorrection = (sbyte)(r.Tuning / 65536);
 
                     //Sample Id.
                     z.Generators.Add(new Generator() { Gen = SF2Generators.SampleID, Amount = new SF2GeneratorAmount() { UAmount = (ushort)waveLink[(int)r.WaveId] } });
@@ -142,34 +142,48 @@ namespace GotaSoundBank.SF2 {
                             //Switch connection type.
                             switch (c.DestinationConnection) {
                                 case DestinationConnection.Chorus:
+                                    gen = SF2Generators.ChorusEffectsSend;
+                                    amount.Amount = (short)(c.Scale / 65536);
                                     break;
                                 case DestinationConnection.EG1AttackTime:
                                     gen = SF2Generators.AttackVolEnv;
-                                    amount.UAmount = (ushort)(c.Scale / 65536);
+                                    amount.Amount = (short)(c.Scale / 65536);
                                     break;
                                 case DestinationConnection.EG1DecayTime:
                                     gen = SF2Generators.DecayVolEnv;
-                                    amount.UAmount = (ushort)(c.Scale / 65536);
+                                    amount.Amount = (short)(c.Scale / 65536);
                                     break;
                                 case DestinationConnection.EG1DelayTime:
+                                    gen = SF2Generators.DelayVolEnv;
+                                    amount.Amount = (short)(c.Scale / 65536);
                                     break;
                                 case DestinationConnection.EG1HoldTime:
+                                    gen = SF2Generators.HoldVolEnv;
+                                    amount.Amount = (short)(c.Scale / 65536);
                                     break;
                                 case DestinationConnection.EG1ReleaseTime:
                                     gen = SF2Generators.ReleaseVolEnv;
-                                    amount.UAmount = (ushort)(c.Scale / 65536);
+                                    amount.Amount = (short)(c.Scale / 65536);
                                     break;
                                 case DestinationConnection.EG1SustainLevel:
                                     gen = SF2Generators.SustainVolEnv;
-                                    amount.UAmount = (ushort)((1 - c.Scale / 65536d / 1000) * 1000);
+                                    amount.Amount = (short)((1 - c.Scale / 65536d / 1000) * 1000);
                                     break;
                                 case DestinationConnection.KeyNumber:
+                                    gen = SF2Generators.Keynum;
+                                    amount.Amount = (short)(c.Scale / 65536);
                                     break;
                                 case DestinationConnection.Pan:
+                                    gen = SF2Generators.Pan;
+                                    amount.Amount = (short)(c.Scale / 65536);
                                     break;
                                 case DestinationConnection.LFOFrequency:
+                                    gen = SF2Generators.FreqModLFO;
+                                    amount.Amount = (short)(c.Scale / 65536);
                                     break;
                                 case DestinationConnection.LFOStartDelayTime:
+                                    gen = SF2Generators.DelayModLFO;
+                                    amount.Amount = (short)(c.Scale / 65536);
                                     break;
                             }
 
@@ -180,7 +194,7 @@ namespace GotaSoundBank.SF2 {
 
                             //Modulator used.
                             if (c.TransformConnection != TransformConnection.None) { 
-                            
+                                //Nah, I'm lazy.
                             }
                         
                         }
@@ -553,7 +567,7 @@ namespace GotaSoundBank.SF2 {
                 Dictionary<SampleItem, long> samplePositions = new Dictionary<SampleItem, long>();
                 foreach (var s in Samples) {
                     samplePositions.Add(s, w.Position);
-                    w.Write(new short[s.Wave.Channels[0].NumSamples]);
+                    w.Write(new short[s.Wave.Audio.NumSamples]);
                     w.Write(new short[46]);
                 }
                 w.EndChunk();
@@ -701,7 +715,7 @@ namespace GotaSoundBank.SF2 {
             for (int i = 0; i < waves.Count; i++) {
 
                 //Switch the number of channels.
-                switch (waves[i].Channels.Count()) {
+                switch (waves[i].Audio.Channels.Count()) {
 
                     //Mono.
                     case 1:
@@ -714,8 +728,8 @@ namespace GotaSoundBank.SF2 {
                         RiffWave right = new RiffWave();
                         left.FromOtherStreamFile(waves[i]);
                         right.FromOtherStreamFile(waves[i]);
-                        left.Channels.RemoveAt(1);
-                        right.Channels.RemoveAt(0);
+                        left.Audio.Channels.RemoveAt(1);
+                        right.Audio.Channels.RemoveAt(0);
                         Samples.Add(new SampleItem() { LinkType = SF2LinkTypes.Left, Name = "Sample " + i + " L", Link = link, Wave = left });
                         Samples.Add(new SampleItem() { LinkType = SF2LinkTypes.Right, Name = "Sample " + i + " R", Link = link++, Wave = right });
                         break;
@@ -726,7 +740,7 @@ namespace GotaSoundBank.SF2 {
                         foreach (var w in waves) {
                             RiffWave lnk = new RiffWave();
                             lnk.FromOtherStreamFile(w);
-                            lnk.Channels = new List<AudioEncoding>() { lnk.Channels[chanNum++] };
+                            lnk.Audio.Channels = new List<List<GotaSoundIO.Sound.Encoding.IAudioEncoding>>() { lnk.Audio.Channels[chanNum++] };
                             Samples.Add(new SampleItem() { LinkType = SF2LinkTypes.Left, Name = "Sample " + i + " Link " + chanNum, Link = link, Wave = lnk });
                         }
                         link++;
@@ -736,7 +750,7 @@ namespace GotaSoundBank.SF2 {
 
                 //Increase index.
                 newIndices.Add(i, currInd);
-                currInd += (ushort)waves[i].Channels.Count();
+                currInd += (ushort)waves[i].Audio.Channels.Count();
 
             }
 

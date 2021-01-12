@@ -10,7 +10,7 @@ namespace GotaSoundBank.SF2 {
     /// <summary>
     /// Instrument, or preset.
     /// </summary>
-    public class Preset : IReadable, IWritable {
+    public class Preset : IReadable, IWriteable {
 
         /// <summary>
         /// Preset name.

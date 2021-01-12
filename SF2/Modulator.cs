@@ -10,7 +10,7 @@ namespace GotaSoundBank.SF2 {
     /// <summary>
     /// Modulator.
     /// </summary>
-    public class Modulator : IReadable, IWritable {
+    public class Modulator : IReadable, IWriteable {
 
         /// <summary>
         /// Source.

@@ -57,7 +57,6 @@
     <Compile Include="SF2\SF2Modulators.cs" />
     <Compile Include="SF2\SF2Transforms.cs" />
     <Compile Include="SF2\SoundFont.cs" />
-    <Compile Include="SF2\SoundFontOLD.cs" />
     <Compile Include="SF2\Zone.cs" />
   </ItemGroup>
   <ItemGroup>

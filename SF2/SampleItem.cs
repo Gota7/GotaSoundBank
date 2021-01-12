@@ -11,7 +11,7 @@ namespace GotaSoundBank.SF2 {
     /// <summary>
     /// A sample item.
     /// </summary>
-    public class SampleItem : IReadable, IWritable {
+    public class SampleItem : IReadable, IWriteable {
 
         /// <summary>
         /// Sample name.
@@ -59,7 +59,8 @@ namespace GotaSoundBank.SF2 {
             long bak = r.Position;
             r.Position = r.CurrentOffset;
             r.Position += startSample * 2;
-            Wave = new RiffWave() { Channels = new List<AudioEncoding>() { new PCM16(r.ReadInt16s((int)(endSample * 2 + r.CurrentOffset - r.Position) / 2)) } };
+            Wave = new RiffWave() { Audio = new AudioData() { Channels = new List<List<GotaSoundIO.Sound.Encoding.IAudioEncoding>>() { new List<GotaSoundIO.Sound.Encoding.IAudioEncoding>() { new PCM16() } } } };
+            Wave.Audio.Channels[0][0].ReadRaw(r, (uint)((endSample * 2 + r.CurrentOffset - r.Position) / 2), (uint)(endSample * 2 + r.CurrentOffset - r.Position));
             r.Position = bak;
             Wave.LoopStart = r.ReadUInt32();
             Wave.LoopEnd = r.ReadUInt32();
@@ -90,10 +91,10 @@ namespace GotaSoundBank.SF2 {
             w.WriteFixedString(Name, 20);
             uint startSample = (uint)((w.CurrentOffset - waveTableStart) / 2);
             w.Write(startSample);
-            w.Write((uint)(startSample + Wave.Channels[0].NumSamples));
+            w.Write((uint)(startSample + Wave.Audio.NumSamples));
             long bak = w.Position;
             w.Position = w.CurrentOffset;
-            w.Write(Wave.Channels[0].ToPCM16());
+            Wave.Audio.Write(w);
             w.Position = bak;
             w.Write((uint)(Wave.Loops ? Wave.LoopStart + startSample : 0));
             w.Write((uint)(Wave.Loops ? Wave.LoopEnd + startSample : 0));

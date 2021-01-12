@@ -10,7 +10,7 @@ namespace GotaSoundBank.SF2 {
     /// <summary>
     /// A generator.
     /// </summary>
-    public class Generator : IReadable, IWritable {
+    public class Generator : IReadable, IWriteable {
 
         /// <summary>
         /// Generator.
